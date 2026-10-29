@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RoadSafe India | Accident Analytics</title>
+<style>
+:root{--bg:#0b1220;--panel:#111c2f;--panel2:#16243a;--text:#f4f7fb;--muted:#a7b4c8;--red:#ff647c;--amber:#ffca78;--teal:#56d6c4;--line:#263650}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 10% 0%,#172743 0,transparent 40%),var(--bg);color:var(--text);font:15px/1.5 Inter,Segoe UI,Arial,sans-serif}
+.wrap{max-width:1250px;margin:auto;padding:28px 22px 48px}.top{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-bottom:28px}.brand{display:flex;align-items:center;gap:13px}.mark{width:48px;height:48px;border-radius:15px;background:linear-gradient(135deg,#ff647c,#ff9b75);display:grid;place-items:center;font-size:24px;box-shadow:0 8px 28px #ff647c33}.eyebrow{color:var(--teal);text-transform:uppercase;letter-spacing:.17em;font-size:11px;font-weight:800}.title{font-size:clamp(25px,4vw,38px);font-weight:800;letter-spacing:-.04em;margin:2px 0}.sub{color:var(--muted);margin:0}.tag{border:1px solid #344661;border-radius:999px;padding:8px 12px;color:var(--muted);font-size:12px;white-space:nowrap}
+.controls{display:flex;flex-wrap:wrap;align-items:center;gap:10px;background:#101a2b;border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:18px}.controls label{font-size:12px;color:var(--muted)}select{background:#1b2a42;color:var(--text);border:1px solid #3a4b65;border-radius:9px;padding:9px 12px;margin-left:7px}
+.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}.card{background:linear-gradient(160deg,var(--panel),#0f192a);border:1px solid var(--line);border-radius:17px;padding:18px;min-width:0;box-shadow:0 12px 32px #00000012}.k-label{color:var(--muted);font-size:12px}.k-value{font-size:clamp(23px,3vw,31px);font-weight:800;letter-spacing:-.04em;margin:7px 0}.k-note{font-size:11px;color:var(--muted)}.accent{color:var(--red)}.amber{color:var(--amber)}.teal{color:var(--teal)}
+.layout{display:grid;grid-template-columns:1.2fr .8fr;gap:14px;margin-top:14px}.chart-title{font-size:15px;font-weight:750;margin:0 0 3px}.chart-sub{font-size:12px;color:var(--muted);margin:0 0 14px}.chart{width:100%;overflow:hidden}.chart svg{width:100%;height:auto;display:block}.axis{stroke:#34455e;stroke-width:1}.label{fill:#a7b4c8;font-size:10px}.bar{fill:#ff647c}.bar2{fill:#56d6c4}.point{fill:#ffca78}.insights{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:14px}.insight-num{font-size:11px;color:var(--teal);font-weight:800;letter-spacing:.1em}.insight h3{font-size:15px;margin:7px 0}.insight p{font-size:13px;color:var(--muted);margin:0}.table-wrap{overflow:auto;max-height:360px}table{width:100%;border-collapse:collapse;font-size:12px}th,td{text-align:right;padding:10px;border-bottom:1px solid var(--line);white-space:nowrap}th:first-child,td:first-child{text-align:left}th{color:var(--muted);font-weight:600;position:sticky;top:0;background:var(--panel)}.foot{margin-top:20px;color:#8292aa;font-size:11px;line-height:1.7}.status{color:var(--teal);font-size:12px}.error{color:#ff9da9}.section-label{font-size:11px;color:var(--teal);letter-spacing:.15em;font-weight:800;text-transform:uppercase;margin:28px 0 10px}
+@media(max-width:850px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.layout{grid-template-columns:1fr}.insights{grid-template-columns:1fr}.top{align-items:flex-start;flex-direction:column}}@media(max-width:460px){.wrap{padding:18px 12px}.grid{gap:8px}.card{padding:13px}.k-value{font-size:22px}}
+</style></head><body><main class="wrap">
+<header class="top"><div class="brand"><div class="mark">⚠</div><div><div class="eyebrow">Data analytics project</div><h1 class="title">RoadSafe India</h1><p class="sub">Road accident patterns across States &amp; Union Territories · 2020–2024</p></div></div><div class="tag">PYTHON · R · POWER BI</div></header>
+<div class="controls"><label>Compare year<select id="year"><option>2024</option><option>2023</option><option>2022</option><option>2021</option><option>2020</option></select></label><label>Find state/UT<select id="state"><option value="All">All States / UTs</option></select></label><span class="status" id="status">Loading verified dataset…</span></div>
+<section class="grid">
+<div class="card"><div class="k-label">Reported accidents · India</div><div class="k-value accent" id="national">—</div><div class="k-note">Official national total for selected year</div></div>
+<div class="card"><div class="k-label">Highest-count state/UT</div><div class="k-value" id="leader">—</div><div class="k-note" id="leader-note">State ranking for selected year</div></div>
+<div class="card"><div class="k-label">Change vs 2020</div><div class="k-value amber" id="change">—</div><div class="k-note">Change in national reported accident count</div></div>
+<div class="card"><div class="k-label">State/UT entries</div><div class="k-value teal" id="coverage">—</div><div class="k-note">Rows in source dataset</div></div>
+</section>
+<div class="section-label">Explore the data</div>
+<section class="layout">
+<div class="card"><h2 class="chart-title">National accident trend</h2><p class="chart-sub">Reported road accidents by year · all India</p><div class="chart" id="trend"></div></div>
+<div class="card"><h2 class="chart-title">Top 10 states/UTs</h2><p class="chart-sub">Selected year · reported accident count</p><div class="chart" id="ranking"></div></div>
+</section>
+<section class="layout">
+<div class="card"><h2 class="chart-title">State comparison</h2><p class="chart-sub">Choose a state/UT above to view its five-year pattern</p><div class="chart" id="stateTrend"></div></div>
+<div class="card"><h2 class="chart-title">Selected year summary</h2><p class="chart-sub">National totals can differ slightly from summed state rows because of unavailable entries and source reporting.</p><div class="table-wrap"><table><thead><tr><th>Year</th><th>Accidents</th><th>Change</th></tr></thead><tbody id="summary"></tbody></table></div></div>
+</section>
+<div class="section-label">What the numbers tell us</div>
+<section class="insights">
+<div class="card insight"><div class="insight-num">01 / STATE PATTERN</div><h3 id="insight1-title">State ranking</h3><p id="insight1">Loading observations…</p></div>
+<div class="card insight"><div class="insight-num">02 / NATIONAL TREND</div><h3 id="insight2-title">Trend over time</h3><p id="insight2">Loading observations…</p></div>
+<div class="card insight"><div class="insight-num">03 / INTERPRETATION</div><h3>Counts are not risk rates</h3><p>Higher counts alone do not prove a road is more dangerous. Population, vehicle numbers, road length and travel exposure are not controlled in this dataset.</p></div>
+</section>
+<footer class="foot">Source: PRS India, “Demand for Grants 2026–27: Road Transport and Highways”, Table 15, citing Ministry of Road Transport and Highways (MoRTH), <em>Road Accidents in India</em>. Data collection page: data.opencity.in/dataset/road-accidents-in-india-2024.<br>Method note: State-wise accident counts for 2020–2024. This dataset does not contain accident hour/month, cause, injuries or fatalities by state; those analyses require compatible additional data. Missing values are not treated as zero. R forecasts are exploratory only because there are only five annual observations.</footer>
+</main>
+<script>
+let DATA;
+const fmt=n=>n==null?'N/A':Number(n).toLocaleString('en-IN');
+function el(id){return document.getElementById(id)}
+function svgWrap(inner,h=260){return `<svg viewBox="0 0 600 ${h}" role="img">${inner}</svg>`}
+function lineChart(points,labels,color='#ff647c',h=260){
+ const W=600,L=44,R=18,T=16,B=34,iw=W-L-R,ih=h-T-B; if(!points.length)return '';
+ const valid=points.filter(v=>v!==null&&v!==undefined&&Number.isFinite(Number(v)));
+ let max=Math.max(...valid,1)*1.12,min=0;let coords=points.map((v,i)=>[L+(points.length===1?iw/2:i*iw/(points.length-1)),v===null||v===undefined?null:T+ih-(Number(v)-min)/(max-min||1)*ih]);
+ let grid='';for(let i=0;i<=4;i++){let y=T+i*ih/4;grid+=`<line class="axis" x1="${L}" y1="${y}" x2="${W-R}" y2="${y}"/><text class="label" x="${L-7}" y="${y+3}" text-anchor="end">${(max*(1-i/4)/1000).toFixed(0)}k</text>`}
+ let path='',started=false;coords.forEach(p=>{if(p[1]===null){started=false;return}path+=(started?' L':' M')+p[0]+','+p[1];started=true});
+ let circles=coords.map((p,i)=>`${p[1]===null?'':`<circle cx="${p[0]}" cy="${p[1]}" r="4" fill="${color}"><title>${labels[i]}: ${fmt(points[i])}</title></circle>`}<text class="label" x="${p[0]}" y="${h-10}" text-anchor="middle">${labels[i]}</text>`).join('');
+ return svgWrap(grid+`<path d="${path}" fill="none" stroke="${color}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>`+circles,h)
+}
+function barChart(items,h=340){
+ const W=600,L=155,R=55,T=8,rowH=29,barH=14, max=Math.max(...items.map(x=>x.v),1);
+ let s='';items.forEach((it,i)=>{let y=T+i*rowH;let width=(W-L-R)*it.v/max;s+=`<text class="label" x="${L-9}" y="${y+12}" text-anchor="end">${it.n.length>22?it.n.slice(0,20)+'…':it.n}</text><rect x="${L}" y="${y}" width="${Math.max(1,width)}" height="${barH}" rx="5" class="${i===0?'bar':'bar2'}"/><text class="label" x="${Math.min(W-R+2,L+width+6)}" y="${y+12}">${fmt(it.v)}</text>`});return svgWrap(s,Math.max(h,T+items.length*rowH+5))
+}
+function render(){
+ const year=el('year').value,selected=el('state').value,states=DATA.states;
+ const vals=states.map(s=>({n:s.state_ut,v:s[year]})).filter(x=>x.v!==null&&x.v!==undefined).sort((a,b)=>b.v-a.v);
+ const national=DATA.totals[year],base=DATA.totals['2020'],change=(national/base-1)*100;
+ el('national').textContent=fmt(national);el('leader').textContent=vals[0]?.n||'—';el('leader-note').textContent=fmt(vals[0]?.v)+' reported accidents';el('change').textContent=(change>=0?'+':'')+change.toFixed(1)+'%';el('coverage').textContent=states.length;
+ el('trend').innerHTML=lineChart(DATA.years.map(y=>DATA.totals[String(y)]),DATA.years.map(String),'#ff647c');
+ el('ranking').innerHTML=barChart(vals.slice(0,10),330);
+ const state=selected==='All'?vals[0]?.n:selected; const row=states.find(s=>s.state_ut===state);
+ if(row){const p=DATA.years.map(y=>row[String(y)]);el('stateTrend').innerHTML=lineChart(p,DATA.years.map(String),'#56d6c4');}
+ else el('stateTrend').innerHTML='<p class="sub">No data available.</p>';
+ el('summary').innerHTML=DATA.years.map((y,i)=>{let v=DATA.totals[String(y)],pct=i?((v/DATA.totals[String(DATA.years[i-1])]-1)*100):null;return `<tr><td>${y}</td><td>${fmt(v)}</td><td>${pct===null?'—':(pct>=0?'+':'')+pct.toFixed(1)+'%'}</td></tr>`}).join('');
+ el('insight1-title').textContent=vals[0]?.n+' leads in '+year;
+ el('insight1').textContent=`${vals[0]?.n} has the largest reported count in ${year} (${fmt(vals[0]?.v)}). Counts should be interpreted alongside population and traffic exposure.`;
+ const start=DATA.totals['2020'],end=DATA.totals['2024'],pct=(end/start-1)*100;
+ el('insight2-title').textContent=pct>=0?'National count increased':'National count decreased';
+ el('insight2').textContent=`The national reported total changed from ${fmt(start)} in 2020 to ${fmt(end)} in 2024 (${pct>=0?'+':''}${pct.toFixed(1)}%). The 2020 baseline may be affected by pandemic-era mobility restrictions.`;
+}
+async function init(){
+ try{const res=await fetch('/api/accidents');if(!res.ok)throw Error('Backend API not available');DATA=await res.json();
+ states=DATA.states;
+ const stateSelect=el('state');DATA.states.forEach(s=>{let o=document.createElement('option');o.value=s.state_ut;o.textContent=s.state_ut;stateSelect.appendChild(o)});
+ el('year').addEventListener('change',render);stateSelect.addEventListener('change',render);
+ el('status').textContent='Dataset loaded · 2020–2024';render();
+ }catch(e){el('status').textContent='Start the Python backend to load data';el('status').className='status error';}
+}
+init();
+</script></body></html>
